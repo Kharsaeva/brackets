@@ -1,26 +1,41 @@
 module.exports = function check(str, bracketsConfig) {
-  const stack = [];
-  const openingBrackets = bracketsConfig.map(pair => pair[0]);
-  const closingBrackets = bracketsConfig.map(pair => pair[1]);
-  
+  const openBracket = ["(", "{", "[", "|", "1", "3", "5", "7", "8"];
+  const bracketPair = {
+    [")"]: "(",
+    ["]"]: "[",
+    ["}"]: "{",
+    ["|"]: "|",
+    ["2"]: "1",
+    ["4"]: "3",
+    ["6"]: "5",
+    ["7"]: "7",
+    ["8"]: "8",
+  };
+  let stack = [];
+  let nextElement;
+
   for (let i = 0; i < str.length; i++) {
-    const currentChar = str[i];
-    
-    if (openingBrackets.includes(currentChar)) {
-      // Push opening brackets to stack
-      stack.push(currentChar);
-    } else if (closingBrackets.includes(currentChar)) {
-      // Check if closing bracket matches the last opening bracket in the stack
-      const matchingOpeningBracket = openingBrackets[closingBrackets.indexOf(currentChar)];
-      if (stack.length === 0 || stack.pop() !== matchingOpeningBracket) {
+    let currentSymbol = str[i];
+    let topElement = stack[stack.length - 1];
+    if (topElement === "|" || topElement === "7" || topElement === "8") {
+      nextElement = topElement;
+    } else {
+      nextElement = undefined;
+    }
+
+    if (openBracket.includes(currentSymbol) && currentSymbol !== nextElement) {
+      stack.push(currentSymbol);
+    } else {
+      if (stack.length === 0) {
         return false;
       }
-    } else {
-      // Ignore non-bracket characters
-      continue;
+
+      if (bracketPair[currentSymbol] === topElement) {
+        stack.pop();
+      } else {
+        return false;
+      }
     }
   }
-  
-  // If there are still opening brackets in the stack, the string is unbalanced
   return stack.length === 0;
-}
+};
